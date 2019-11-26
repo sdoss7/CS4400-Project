@@ -161,7 +161,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `customer` WRITE;
 /*!40000 ALTER TABLE `customer` DISABLE KEYS */;
-INSERT INTO `customer` VALUES ('calcultron2'),('calcwizard'),('clarinetbeast'),('DNAhelix'),('does2Much'),('eeqmcsquare'),('fullMetal'),('ilikemoney$$'),('imready'),('isthisthekrustykrab'),('notFullMetal'),('programerAAL'),('RitzLover28'),('thePiGuy3.14'),('theScienceGuy');
+INSERT INTO `customer` VALUES ('georgep'),('calcultron'),('entropyRox'),('cool_class4400'),('calcultron2'),('calcwizard'),('clarinetbeast'),('DNAhelix'),('does2Much'),('eeqmcsquare'),('fullMetal'),('ilikemoney$$'),('imready'),('isthisthekrustykrab'),('notFullMetal'),('programerAAL'),('RitzLover28'),('thePiGuy3.14'),('theScienceGuy');
 /*!40000 ALTER TABLE `customer` ENABLE KEYS */;
 UNLOCK TABLES;
 
