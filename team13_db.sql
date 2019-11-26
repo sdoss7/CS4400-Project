@@ -141,6 +141,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `admin` WRITE;
 /*!40000 ALTER TABLE `admin` DISABLE KEYS */;
+INSERT INTO `admin` VALUES ('cool_class4400');
 /*!40000 ALTER TABLE `admin` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -160,7 +161,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `customer` WRITE;
 /*!40000 ALTER TABLE `customer` DISABLE KEYS */;
-INSERT INTO `customer` VALUES ('calcultron2'),('calcwizard'),('clarinetbeast'),('DNAhelix'),('does2Much'),('eeqmcsquare'),('fullMetal'),('ilikemoney$$'),('imready'),('isthisthekrustykrab'),('notFullMetal'),('programerAAL'),('RitzLover28'),('thePiGuy3.14'),('theScienceGuy');
+INSERT INTO `customer` VALUES ('georgep'),('calcultron'),('entropyRox'),('cool_class4400'),('calcultron2'),('calcwizard'),('clarinetbeast'),('DNAhelix'),('does2Much'),('eeqmcsquare'),('fullMetal'),('ilikemoney$$'),('imready'),('isthisthekrustykrab'),('notFullMetal'),('programerAAL'),('RitzLover28'),('thePiGuy3.14'),('theScienceGuy');
 /*!40000 ALTER TABLE `customer` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -180,7 +181,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `manager` WRITE;
 /*!40000 ALTER TABLE `manager` DISABLE KEYS */;
-INSERT INTO `manager` VALUES ('calcultron','123 Peachtree St','Atlanta','GA','30308','EZ theater company'),('cool_class4400',NULL,NULL,NULL,NULL,NULL),('entropyRox','200 Cool Place','San Francisco','CA','94016','4400 theater company'),('fatherAI','456 Main St','New York','NY','10001','EZ theater company'),('georgep','10 Pearl Dr','Seattle','WA','98105','4400 theater company'),('ghcghc','100 Pi St','Pallet Town','KS','31415','AI theater company'),('imbatman','800 Color Dr','Austin','TX','78653','Awesome theater company'),('manager1','123 Ferst Drive','Atlanta','GA','30332','4400 theater company'),('manager2','456 Ferst Drive','Atlanta','GA','30332','AI theater company'),('manager3','789 Ferst Drive','Atlanta','GA','30332','4400 theater company'),('manager4','000 Ferst Drive','Atlanta','GA','30332','4400 theater company'),('radioactivePoRa','100 Blu St','Sunnyvale','CA','94088','4400 theater company');
+INSERT INTO `manager` VALUES ('calcultron','123 Peachtree St','Atlanta','GA','30308','EZ theater company'),('entropyRox','200 Cool Place','San Francisco','CA','94016','4400 theater company'),('fatherAI','456 Main St','New York','NY','10001','EZ theater company'),('georgep','10 Pearl Dr','Seattle','WA','98105','4400 theater company'),('ghcghc','100 Pi St','Pallet Town','KS','31415','AI theater company'),('imbatman','800 Color Dr','Austin','TX','78653','Awesome theater company'),('manager1','123 Ferst Drive','Atlanta','GA','30332','4400 theater company'),('manager2','456 Ferst Drive','Atlanta','GA','30332','AI theater company'),('manager3','789 Ferst Drive','Atlanta','GA','30332','4400 theater company'),('manager4','000 Ferst Drive','Atlanta','GA','30332','4400 theater company'),('radioactivePoRa','100 Blu St','Sunnyvale','CA','94088','4400 theater company');
 /*!40000 ALTER TABLE `manager` ENABLE KEYS */;
 UNLOCK TABLES;
 
