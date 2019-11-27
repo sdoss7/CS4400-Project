@@ -152,3 +152,49 @@ BEGIN
 END$$
 DELIMITER ;
 
+
+DROP PROCEDURE IF EXISTS admin_view_comDetail_th;
+DELIMITER $$
+CREATE PROCEDURE `admin_view_comDetail_th`(IN i_comName VARCHAR(50))
+BEGIN
+    DROP TABLE IF EXISTS AdComDetailTh;
+    CREATE TABLE AdComDetailTh
+	SELECT thName, thManagerUsername, thCity, thState, thCapacity 
+    FROM Theater
+		NATURAL JOIN
+        COMPANY
+    WHERE 
+		(comName = i_comName OR i_comName = "ALL");
+END
+$$
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS admin_view_comDetail_emp;
+DELIMITER $$
+CREATE PROCEDURE `admin_view_comDetail_emp`(IN i_comName VARCHAR(50))
+BEGIN
+    DROP TABLE IF EXISTS AdComDetailEmp;
+    CREATE TABLE AdComDetailEmp
+	SELECT empFirstname, empLastname 
+    FROM Employee
+		NATURAL JOIN
+        COMPANY
+    WHERE 
+		(comName = i_comName OR i_comName = "ALL");
+END
+$$
+DELIMITER ;
+
+
+
+DROP PROCEDURE IF EXISTS admin_create_mov;
+DELIMITER $$
+CREATE PROCEDURE `admin_create_mov`(IN i_movName VARCHAR(50), i_movDuration INT, i_movReleas DATE)
+BEGIN
+		INSERT INTO Movie (name, duration, release_date) VALUES (i_movName, i_movDuration, i_movReleas);
+END
+$$
+DELIMITER ;
