@@ -1,6 +1,6 @@
-DROP DATABASE IF EXISTS Team13;
-CREATE DATABASE Team13;
-USE Team13;
+DROP DATABASE IF EXISTS team13;
+CREATE DATABASE team13;
+USE team13;
 DROP TABLE IF EXISTS user;	 	 	
 CREATE TABLE user
 (
@@ -58,15 +58,15 @@ CREATE TABLE theater
 (
 thName VARCHAR(50) NOT NULL,
 comName VARCHAR(50) NOT NULL,
-capacity INT NOT NULL,
+thcapacity INT NOT NULL,
 thStreet VARCHAR(50) NOT NULL,
 thCity VARCHAR(50) NOT NULL,
 thState VARCHAR(3) NOT NULL,
 thZipcode CHAR(5) NOT NULL,
-manusername VARCHAR(50) NOT NULL,
+thManagerUsername VARCHAR(50) NOT NULL,
 PRIMARY KEY (thName, comName),
 FOREIGN KEY (comName) REFERENCES company(comName),
-FOREIGN KEY (manusername) REFERENCES manager(username)
+FOREIGN KEY (thManagerUsername) REFERENCES manager(username)
 );
 DROP TABLE IF EXISTS customercreditcard;	
 CREATE TABLE customercreditcard
@@ -356,7 +356,7 @@ BEGIN
 	SELECT thName, thStreet, thCity, thState, thZipcode, comName, visitDate
     FROM UserVisitTheater
 		NATURAL JOIN
-        Theater
+        theater
 	WHERE
 		(username = i_username) AND
         (i_minVisitDate IS NULL OR visitDate >= i_minVisitDate) AND
@@ -385,7 +385,7 @@ DELIMITER $$
 CREATE PROCEDURE `admin_create_theater` (IN i_thName VARCHAR(50), IN i_comName VARCHAR(50), IN i_thCity VARCHAR(50), IN i_thStreet VARCHAR(50), IN i_thState CHAR(2), 
 IN i_thZipcode CHAR(5), IN i_capacity INT, IN i_managerUsername VARCHAR(50))
 BEGIN
-	INSERT INTO theater (thName, comName, capacity, thStreet, thCity, thState, thZipcode, manUsername)
+	INSERT INTO theater (thName, comName, capacity, thStreet, thCity, thState, thZipcode, thManagerUsername)
     VALUES (i_thName, i_comName, i_capacity, i_thStreet, i_thCity, i_thState, i_thZipcode, i_managerUsername);
 END$$
 DELIMITER ;
@@ -398,17 +398,14 @@ BEGIN
     DROP TABLE IF EXISTS AdComDetailTh;
     CREATE TABLE AdComDetailTh
 	SELECT thName, thManagerUsername, thCity, thState, thCapacity 
-    FROM Theater
+    FROM theater
 		NATURAL JOIN
-        COMPANY
+        company
     WHERE 
 		(comName = i_comName OR i_comName = "ALL");
 END
 $$
-DELIMITER ;
-
-
-
+DELIMITER 
 
 DROP PROCEDURE IF EXISTS admin_view_comDetail_emp;
 DELIMITER $$
@@ -416,12 +413,12 @@ CREATE PROCEDURE `admin_view_comDetail_emp`(IN i_comName VARCHAR(50))
 BEGIN
     DROP TABLE IF EXISTS AdComDetailEmp;
     CREATE TABLE AdComDetailEmp
-	SELECT empFirstname, empLastname 
-    FROM Employee
+	SELECT firstname as empFirstname, lastname as empLastname
+    FROM user
 		NATURAL JOIN
-        COMPANY
+        company
     WHERE 
-		(comName = i_comName OR i_comName = "ALL");
+		user.username in (select username from employee) and (company.comName = i_comName OR i_comName = "ALL");
 END
 $$
 DELIMITER ;
@@ -432,7 +429,7 @@ DROP PROCEDURE IF EXISTS admin_create_mov;
 DELIMITER $$
 CREATE PROCEDURE `admin_create_mov`(IN i_movName VARCHAR(50), i_movDuration INT, i_movReleas DATE)
 BEGIN
-		INSERT INTO Movie (name, duration, release_date) VALUES (i_movName, i_movDuration, i_movReleas);
+		INSERT INTO movie (name, duration, release_date) VALUES (i_movName, i_movDuration, i_movReleas);
 END
 $$
 DELIMITER ;
@@ -452,15 +449,15 @@ BEGIN
 	ORDER BY 
 		(CASE
 			WHEN i_sortBy = "comName" AND i_sortDirection = "ASC" THEN comName
-			WHEN i_sortBy = "numCityCover" AND i_sortDirection = "ASC" THEN numCityCover
-			WHEN i_sortBy = "numTheater" AND i_sortDirection = "ASC" THEN numTheater
-			WHEN i_sortBy = "numEmployee" AND i_sortDirection = "ASC" THEN numEmployee
+			WHEN i_sortBy = "numCityCover" AND i_sortDirection = "ASC" THEN COUNT(DISTINCT thCity, thState)
+			WHEN i_sortBy = "numTheater" AND i_sortDirection = "ASC" THEN COUNT(DISTINCT(thName))
+			WHEN i_sortBy = "numEmployee" AND i_sortDirection = "ASC" THEN COUNT(DISTINCT(username))
 		END) ASC,
 		(CASE 
 			WHEN i_sortBy = "comName" THEN comName
-			WHEN i_sortBy = "numCityCover" THEN numCityCover
-			WHEN i_sortBy = "numTheater" THEN numTheater
-			WHEN i_sortBy = "numEmployee" THEN numEmployee
+			WHEN i_sortBy = "numCityCover" THEN COUNT(DISTINCT thCity, thState)
+			WHEN i_sortBy = "numTheater" THEN COUNT(DISTINCT(thName))
+			WHEN i_sortBy = "numEmployee" THEN COUNT(DISTINCT(username))
 			ELSE comName
 		END) DESC;
 END$$
@@ -487,14 +484,14 @@ BEGIN
 	ORDER BY 
 		(CASE
 			WHEN i_sortBy = "username" AND i_sortDirection = "ASC" THEN username
-			WHEN i_sortBy = "creditCardCount" AND i_sortDirection = "ASC" THEN creditCardCount
+			WHEN i_sortBy = "creditCardCount" AND i_sortDirection = "ASC" THEN COUNT(creditCardNum)
 			WHEN i_sortBy = "userType" AND i_sortDirection = "ASC" THEN  userType
 			WHEN i_sortBy = "status" AND i_sortDirection = "ASC" THEN status
 			ELSE username
 		END) ASC,
 		(CASE 
 			WHEN i_sortBy = "username" THEN username
-			WHEN i_sortBy = "creditCardCount" THEN creditCardCount
+			WHEN i_sortBy = "creditCardCount" THEN COUNT(creditCardNum)
 			WHEN i_sortBy = "userType" THEN  userType
 			WHEN i_sortBy = "status" THEN status
 			ELSE username
@@ -510,7 +507,7 @@ BEGIN
     DROP TABLE IF EXISTS ManFilterTh;
     CREATE TABLE ManFilterTh
 	SELECT movie.movName, duration, movie.movReleaseDate, movieplay.movPlayDate
-	FROM manager JOIN theater ON manager.username = theater.manusername JOIN movie LEFT JOIN movieplay ON movieplay.thName = theater.thName AND movieplay.comName = theater.comName AND movie.movName = movieplay.movName AND movie.movReleaseDate = movieplay.movReleaseDate
+	FROM manager JOIN theater ON manager.username = theater.thManagerUsername JOIN movie LEFT JOIN movieplay ON movieplay.thName = theater.thName AND movieplay.comName = theater.comName AND movie.movName = movieplay.movName AND movie.movReleaseDate = movieplay.movReleaseDate
 	WHERE i_manUsername = username AND movie.movName LIKE ("%" + i_movName + "%") AND (duration >= i_minMovDuration AND duration <= i_maxMovDuration) AND (movie.movReleaseDate >= i_minMovReleaseDate AND movie.movReleaseDate <= i_maxMovReleaseDate) AND (movPlayDate IS NULL OR (movPlayDate >= i_minMovPlayDate AND movPlayDate <= i_maxMovPlayDate)) AND (NOT i_includeNotPlayed OR movPlayDate IS NOT NULL);
 END$$
 DELIMITER ;
@@ -521,7 +518,7 @@ CREATE PROCEDURE `manager_schedule_mov`(IN i_manUsername VARCHAR(50), IN i_movNa
 BEGIN
 	INSERT INTO MoviePlay (thName, comName, movName, movReleaseDate, movPlayDate)
 		SELECT thName, comName, i_movName, i_movReleaseDate, i_movPlayDate
-		FROM manager JOIN theater ON username = manusername
+		FROM manager JOIN theater ON username = thManagerUsername
 		WHERE username = i_manUsername;
 END$$
 DELIMITER ;
