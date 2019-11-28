@@ -198,3 +198,104 @@ BEGIN
 END
 $$
 DELIMITER ;
+
+DROP PROCEDURE IF EXISTS admin_filter_company;
+DELIMITER $$
+CREATE PROCEDURE `user_filter_visitHistory`(IN i_comName VARCHAR(50), IN i_minCity INT, IN i_maxCity INT, IN i_minTheater INT, IN i_maxTheater INT, IN i_minEmployee INT, IN i_maxEmployee INT, IN i_sortBy VARCHAR(20), IN i_sortDirection VARCHAR(4))
+BEGIN
+    DROP TABLE IF EXISTS AdFilterCom;
+    CREATE TABLE AdFilterCom
+	SELECT comName, COUNT(DISTINCT thCity, thState) as numCityCover,  COUNT(DISTINCT(thName)) as numTheater, COUNT(DISTINCT(username)) as numEmployee
+	FROM manager JOIN company USING(comName)
+	LEFT JOIN theater USING(comName)
+	WHERE i_comName = "ALL" OR i_comName = comName
+	GROUP BY comName
+	HAVING (numCityCover >= i_minCity AND numCityCover<=i_maxCity) AND (numTheater >= i_minTheater AND numTheater <= i_maxTheater) AND (numEmployee >= i_minEmployee AND numEmployee <= i_maxEmployee)
+	ORDER BY 
+		(CASE
+			WHEN i_sortBy = "comName" AND i_sortDirection = "ASC" THEN comName
+			WHEN i_sortBy = "numCityCover" AND i_sortDirection = "ASC" THEN numCityCover
+			WHEN i_sortBy = "numTheater" AND i_sortDirection = "ASC" THEN numTheater
+			WHEN i_sortBy = "numEmployee" AND i_sortDirection = "ASC" THEN numEmployee
+		END) ASC,
+		(CASE 
+			WHEN i_sortBy = "comName" THEN comName
+			WHEN i_sortBy = "numCityCover" THEN numCityCover
+			WHEN i_sortBy = "numTheater" THEN numTheater
+			WHEN i_sortBy = "numEmployee" THEN numEmployee
+			ELSE comName
+		END) DESC
+END$$
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS admin_filter_user;
+DELIMITER $$
+CREATE PROCEDURE `admin_filter_user`(IN i_username VARCHAR(50), IN i_status VARCHAR(50), IN i_sortBy VARCHAR(20), IN i_sortDirection VARCHAR(4))
+BEGIN
+    DROP TABLE IF EXISTS AdFilterUser;
+    CREATE TABLE AdFilterUser
+	SELECT username, COUNT(creditcardNum) AS creditCardCount,
+	CASE 
+		WHEN EXISTS(SELECT username from manager where user.username = manager.username) AND EXISTS(SELECT username from customer where user.username = customer.username) then "CustomerManager"
+        WHEN EXISTS(SELECT username from admin where user.username = admin.username) AND EXISTS(SELECT username from customer where user.username = customer.username) then "AdminManager"
+        WHEN EXISTS(SELECT username from customer where user.username = customer.username) then "Customer"
+        WHEN EXISTS(SELECT username from manager where user.username = manager.username) then "Manager"
+        WHEN EXISTS(SELECT username from admin where user.username = admin.username) then "Admin"
+        ELSE "User"
+	END AS userType, status
+	FROM user LEFT JOIN customercreditcard USING(username)
+	WHERE (i_username = "" OR i_username = username) AND (i_status = "ALL" or i_status = status)
+	GROUP BY username
+	ORDER BY 
+		(CASE
+			WHEN i_sortBy == "username" AND i_sortDirection == "ASC" THEN username
+			WHEN i_sortBy == "creditCardCount" AND i_sortDirection == "ASC" THEN creditCardCount
+			WHEN i_sortBy == "userType" AND i_sortDirection == "ASC" THEN  userType
+			WHEN i_sortBy == "status" AND i_sortDirection == "ASC" THEN status
+			ELSE username
+		END) ASC,
+		(CASE 
+			WHEN i_sortBy == "username" THEN username
+			WHEN i_sortBy == "creditCardCount" THEN creditCardCount
+			WHEN i_sortBy == "userType" THEN  userType
+			WHEN i_sortBy == "status" THEN status
+			ELSE username
+		END) DESC
+END$$
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS manager_filter_th;
+DELIMITER $$
+CREATE PROCEDURE `manager_filter_th`(IN i_manUsername VARCHAR(50), IN i_movName VARCHAR(50), IN i_minMovDuration INT, IN i_maxMovDuration INT, IN i_minMovReleaseDate DATE, IN i_maxMovReleaseDate DATE, IN i_minMovPlayDate DATE, IN i_maxMovPlayDate DATE, i_includeNotPlayed BOOLEAN)
+BEGIN
+    DROP TABLE IF EXISTS ManFilterTh;
+    CREATE TABLE ManFilterTh
+	SELECT movie.movName, duration, movie.movReleaseDate, movieplay.movPlayDate
+	FROM manager JOIN theater ON manager.username = theater.manusername JOIN movie LEFT JOIN movieplay ON movieplay.thName = theater.thName AND movieplay.comName = theater.comName AND movie.movName = movieplay.movName AND movie.movReleaseDate = movieplay.movReleaseDate
+	WHERE i_manUsername = username AND movie.movName LIKE "%" + i_movName + "%" AND (duration >= i_minMovDuration AND duration <= i_maxMovDuration) AND (movie.movReleaseDate >= i_minMovReleaseDate AND movie.movReleaseDate <= i_maxMovReleaseDate) AND (movPlayDate IS NULL OR (movPlayDate movPlayDate >= i_minMovPlayDate AND movPlayDate <= i_maxMovPlayDate)) AND (NOT i_includeNotPlayed OR movPlayDate IS NOT NULL)
+END$$
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS manager_schedule_mov;
+DELIMITER $$
+CREATE PROCEDURE `manager_schedule_mov`(IN i_manUsername VARCHAR(50), IN i_movName VARCHAR(50), IN i_movReleaseDate DATE, IN i_movPlayDate DATE)
+BEGIN
+	INSERT INTO MoviePlay (thName, comName, movName, movReleaseDate, movPlayDate)
+		SELECT thName, comName, i_movName, i_movReleaseDate, i_movPlayDate
+		FROM manager JOIN theater ON username = manusername
+		WHERE username = i_manUsername
+END$$
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS customer_filter_mov;
+DELIMITER $$
+CREATE PROCEDURE `manager_filter_th`(IN i_movName VARCHAR(50), IN i_comName VARCHAR(50), IN i_city VARCHAR(50), IN i_state VARCHAR(50), IN i_minMovPlayDate DATE, IN i_maxMovPlayDate DATE, IN i_minMovPlayDate DATE, IN i_maxMovPlayDate DATE)
+BEGIN
+    DROP TABLE IF EXISTS CosFilterMovie;
+    CREATE TABLE CosFilterMovie
+	SELECT movName, thName, thStreet, thCity, thState, thZipcode, theater.comName, movPlayDate, movReleaseDate
+	FROM movieplay join theater using(thName)
+	WHERE (i_movName = movName) AND (i_comName = comname) AND (i_city = thCity OR i_city = "") AND (i_state = thState) AND (movPlayDate >= i_minMovPlayDate) AND (movPlayDate <= i_maxMovPlayDate)
+END$$
+DELIMITER ;
