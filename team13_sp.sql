@@ -299,3 +299,33 @@ BEGIN
 	WHERE (i_movName = movName) AND (i_comName = comname) AND (i_city = thCity OR i_city = "") AND (i_state = thState) AND (movPlayDate >= i_minMovPlayDate) AND (movPlayDate <= i_maxMovPlayDate);
 END$$
 DELIMITER ;
+
+DROP PROCEDURE IF EXISTS customer_view_mov;
+DELIMITER $$
+CREATE PROCEDURE `customer_view_mov`(IN i_creditCardNum CHAR(16), i_movName VARCHAR(50), i_movReleaseDate DATE, i_thName VARCHAR(50), i_comName VARCHAR(50), i_movPlayDate VARCHAR(50))
+BEGIN
+		INSERT INTO customerviewmovie (movName, movReleaseDate, movPlayDate, thName, comName, creditCardNum) 
+		select i_movName,i_movReleaseDate,i_movPlayDate, i_thName, i_comName, i_creditCardNum
+		where (select COUNT(*) from customerviewmovie where creditCardNum in
+        (select creditCardNum from customercreditcard where username = 
+        (select username from customercreditcard where creditCardNum = i_creditCardNum))
+        AND movPlayDate = i_movPlayDate) < 3;
+END
+$$
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS customer_view_history;
+DELIMITER $$
+CREATE PROCEDURE `customer_view_history`(IN i_cusUsername VARCHAR(50))
+BEGIN
+    DROP TABLE IF EXISTS CosViewHistory;
+    CREATE TABLE CosViewHistory
+	SELECT movName, thName, comName, creditCardNum, movPlayDate 
+    FROM 
+        customerviewmovie
+    WHERE 
+		creditCardNum in 
+        (select creditCardNum from customercreditcard where username = i_cusUsername);
+END
+$$
+DELIMITER ;
