@@ -224,7 +224,7 @@ BEGIN
 			WHEN i_sortBy = "numTheater" THEN numTheater
 			WHEN i_sortBy = "numEmployee" THEN numEmployee
 			ELSE comName
-		END) DESC
+		END) DESC;
 END$$
 DELIMITER ;
 
@@ -248,19 +248,19 @@ BEGIN
 	GROUP BY username
 	ORDER BY 
 		(CASE
-			WHEN i_sortBy == "username" AND i_sortDirection == "ASC" THEN username
-			WHEN i_sortBy == "creditCardCount" AND i_sortDirection == "ASC" THEN creditCardCount
-			WHEN i_sortBy == "userType" AND i_sortDirection == "ASC" THEN  userType
-			WHEN i_sortBy == "status" AND i_sortDirection == "ASC" THEN status
+			WHEN i_sortBy = "username" AND i_sortDirection = "ASC" THEN username
+			WHEN i_sortBy = "creditCardCount" AND i_sortDirection = "ASC" THEN creditCardCount
+			WHEN i_sortBy = "userType" AND i_sortDirection = "ASC" THEN  userType
+			WHEN i_sortBy = "status" AND i_sortDirection = "ASC" THEN status
 			ELSE username
 		END) ASC,
 		(CASE 
-			WHEN i_sortBy == "username" THEN username
-			WHEN i_sortBy == "creditCardCount" THEN creditCardCount
-			WHEN i_sortBy == "userType" THEN  userType
-			WHEN i_sortBy == "status" THEN status
+			WHEN i_sortBy = "username" THEN username
+			WHEN i_sortBy = "creditCardCount" THEN creditCardCount
+			WHEN i_sortBy = "userType" THEN  userType
+			WHEN i_sortBy = "status" THEN status
 			ELSE username
-		END) DESC
+		END) DESC;
 END$$
 DELIMITER ;
 
@@ -273,7 +273,7 @@ BEGIN
     CREATE TABLE ManFilterTh
 	SELECT movie.movName, duration, movie.movReleaseDate, movieplay.movPlayDate
 	FROM manager JOIN theater ON manager.username = theater.manusername JOIN movie LEFT JOIN movieplay ON movieplay.thName = theater.thName AND movieplay.comName = theater.comName AND movie.movName = movieplay.movName AND movie.movReleaseDate = movieplay.movReleaseDate
-	WHERE i_manUsername = username AND movie.movName LIKE "%" + i_movName + "%" AND (duration >= i_minMovDuration AND duration <= i_maxMovDuration) AND (movie.movReleaseDate >= i_minMovReleaseDate AND movie.movReleaseDate <= i_maxMovReleaseDate) AND (movPlayDate IS NULL OR (movPlayDate movPlayDate >= i_minMovPlayDate AND movPlayDate <= i_maxMovPlayDate)) AND (NOT i_includeNotPlayed OR movPlayDate IS NOT NULL)
+	WHERE i_manUsername = username AND movie.movName LIKE ("%" + i_movName + "%") AND (duration >= i_minMovDuration AND duration <= i_maxMovDuration) AND (movie.movReleaseDate >= i_minMovReleaseDate AND movie.movReleaseDate <= i_maxMovReleaseDate) AND (movPlayDate IS NULL OR (movPlayDate >= i_minMovPlayDate AND movPlayDate <= i_maxMovPlayDate)) AND (NOT i_includeNotPlayed OR movPlayDate IS NOT NULL);
 END$$
 DELIMITER ;
 
@@ -284,7 +284,7 @@ BEGIN
 	INSERT INTO MoviePlay (thName, comName, movName, movReleaseDate, movPlayDate)
 		SELECT thName, comName, i_movName, i_movReleaseDate, i_movPlayDate
 		FROM manager JOIN theater ON username = manusername
-		WHERE username = i_manUsername
+		WHERE username = i_manUsername;
 END$$
 DELIMITER ;
 
@@ -296,6 +296,6 @@ BEGIN
     CREATE TABLE CosFilterMovie
 	SELECT movName, thName, thStreet, thCity, thState, thZipcode, theater.comName, movPlayDate, movReleaseDate
 	FROM movieplay join theater using(thName)
-	WHERE (i_movName = movName) AND (i_comName = comname) AND (i_city = thCity OR i_city = "") AND (i_state = thState) AND (movPlayDate >= i_minMovPlayDate) AND (movPlayDate <= i_maxMovPlayDate)
+	WHERE (i_movName = movName) AND (i_comName = comname) AND (i_city = thCity OR i_city = "") AND (i_state = thState) AND (movPlayDate >= i_minMovPlayDate) AND (movPlayDate <= i_maxMovPlayDate);
 END$$
 DELIMITER ;
