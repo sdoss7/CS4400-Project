@@ -81,7 +81,7 @@ CREATE TABLE movie
 (
 movName VARCHAR(50) NOT NULL,
 movReleaseDate DATE NOT NULL,
-duration INT NOT NULL,
+movDuration INT NOT NULL,
 PRIMARY KEY (movName, movReleaseDate)
 );
 DROP TABLE IF EXISTS movieplay;	
@@ -171,7 +171,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `customercreditcard` WRITE;
 /*!40000 ALTER TABLE `customercreditcard` DISABLE KEYS */;
-INSERT INTO `customercreditcard` VALUES ('calcultron','1111111111000000'),('calcultron2','1111111100000000'),('calcultron2','1111111110000000'),('calcwizard','1111111111100000'),('cool_class4400','2222222222000000'),('DNAhelix','2220000000000000'),('does2Much','2222222200000000'),('eeqmcsquare','2222222222222200'),('entropyRox','2222222222200000'),('entropyRox','2222222222220000'),('fullMetal','1100000000000000'),('georgep','1111111111110000'),('georgep','1111111111111000'),('georgep','1111111111111100'),('georgep','1111111111111110'),('georgep','1111111111111111'),('ilikemoney$$','2222222222222220'),('ilikemoney$$','9000000000000000'),('imready','1111110000000000'),('isthisthekrustykrab','1110000000000000'),('isthisthekrustykrab','1111000000000000'),('isthisthekrustykrab','1111100000000000'),('notFullMetal','1000000000000000'),('programerAAL','2222222000000000'),('RitzLover28','3333333333333300'),('thePiGuy3.14','2222222220000000'),('theScienceGuy','2222222222222000');
+INSERT INTO `customercreditcard` VALUES ('calcultron','1111111111000000'),('calcultron2','1111111100000000'),('calcultron2','1111111110000000'),('calcwizard','1111111111100000'),('cool_class4400','2222222222000000'),('DNAhelix','2220000000000000'),('does2Much','2222222200000000'),('eeqmcsquare','2222222222222200'),('entropyRox','2222222222200000'),('entropyRox','2222222222220000'),('fullMetal','1100000000000000'),('georgep','1111111111110000'),('georgep','1111111111111000'),('georgep','1111111111111100'),('georgep','1111111111111110'),('georgep','1111111111111111'),('ilikemoney$$', '2222222222222222'), ('ilikemoney$$','2222222222222220'),('ilikemoney$$','9000000000000000'),('imready','1111110000000000'),('isthisthekrustykrab','1110000000000000'),('isthisthekrustykrab','1111000000000000'),('isthisthekrustykrab','1111100000000000'),('notFullMetal','1000000000000000'),('programerAAL','2222222000000000'),('RitzLover28','3333333333333300'),('thePiGuy3.14','2222222220000000'),('theScienceGuy','2222222222222000');
 /*!40000 ALTER TABLE `customercreditcard` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -429,7 +429,7 @@ DROP PROCEDURE IF EXISTS admin_create_mov;
 DELIMITER $$
 CREATE PROCEDURE `admin_create_mov`(IN i_movName VARCHAR(50), i_movDuration INT, i_movReleas DATE)
 BEGIN
-		INSERT INTO movie (name, duration, release_date) VALUES (i_movName, i_movDuration, i_movReleas);
+		INSERT INTO movie (name, movDuration, release_date) VALUES (i_movName, i_movDuration, i_movReleas);
 END
 $$
 DELIMITER ;
@@ -445,7 +445,12 @@ BEGIN
 	LEFT JOIN theater USING(comName)
 	WHERE i_comName = "ALL" OR i_comName = comName
 	GROUP BY comName
-	HAVING (numCityCover >= i_minCity AND numCityCover<=i_maxCity) AND (numTheater >= i_minTheater AND numTheater <= i_maxTheater) AND (numEmployee >= i_minEmployee AND numEmployee <= i_maxEmployee)
+	HAVING (numCityCover >= i_minCity or i_minCity is null) 
+    AND (numCityCover<=i_maxCity or i_maxCity is null) AND 
+    (numTheater >= i_minTheater or i_minTheater is null) AND 
+    (numTheater <= i_maxTheater or i_maxTheater is null) AND 
+    (numEmployee >= i_minEmployee or i_minEmployee is null) AND 
+    (numEmployee <= i_maxEmployee or i_maxEmployee is null)
 	ORDER BY 
 		(CASE
 			WHEN i_sortBy = "comName" AND i_sortDirection = "ASC" THEN comName
@@ -472,7 +477,7 @@ BEGIN
 	SELECT username, COUNT(creditcardNum) AS creditCardCount,
 	CASE 
 		WHEN EXISTS(SELECT username from manager where user.username = manager.username) AND EXISTS(SELECT username from customer where user.username = customer.username) then "CustomerManager"
-        WHEN EXISTS(SELECT username from admin where user.username = admin.username) AND EXISTS(SELECT username from customer where user.username = customer.username) then "AdminManager"
+        WHEN EXISTS(SELECT username from admin where user.username = admin.username) AND EXISTS(SELECT username from customer where user.username = customer.username) then "CustomerAdmin"
         WHEN EXISTS(SELECT username from customer where user.username = customer.username) then "Customer"
         WHEN EXISTS(SELECT username from manager where user.username = manager.username) then "Manager"
         WHEN EXISTS(SELECT username from admin where user.username = admin.username) then "Admin"
@@ -506,9 +511,16 @@ CREATE PROCEDURE `manager_filter_th`(IN i_manUsername VARCHAR(50), IN i_movName 
 BEGIN
     DROP TABLE IF EXISTS ManFilterTh;
     CREATE TABLE ManFilterTh
-	SELECT movie.movName, duration, movie.movReleaseDate, movieplay.movPlayDate
-	FROM manager JOIN theater ON manager.username = theater.thManagerUsername JOIN movie LEFT JOIN movieplay ON movieplay.thName = theater.thName AND movieplay.comName = theater.comName AND movie.movName = movieplay.movName AND movie.movReleaseDate = movieplay.movReleaseDate
-	WHERE i_manUsername = username AND movie.movName LIKE ("%" + i_movName + "%") AND (duration >= i_minMovDuration AND duration <= i_maxMovDuration) AND (movie.movReleaseDate >= i_minMovReleaseDate AND movie.movReleaseDate <= i_maxMovReleaseDate) AND (movPlayDate IS NULL OR (movPlayDate >= i_minMovPlayDate AND movPlayDate <= i_maxMovPlayDate)) AND (NOT i_includeNotPlayed OR movPlayDate IS NOT NULL);
+	SELECT movie.movName, movie.movDuration, movie.movReleaseDate, movieplay.movPlayDate
+	FROM manager JOIN theater ON manager.username = theater.thManagerUsername 
+    JOIN movie 
+    LEFT JOIN movieplay ON movieplay.thName = theater.thName AND movieplay.comName = theater.comName AND movie.movName = movieplay.movName AND movie.movReleaseDate = movieplay.movReleaseDate
+	WHERE manager.username = i_manUsername 
+    AND movie.movName  = i_movName
+    AND (movDuration >= i_minMovDuration or i_minMovDuration is null AND movDuration <= i_maxMovDuration or i_maxMovDuration is null) 
+    AND (movie.movReleaseDate >= i_minMovReleaseDate or i_minMovReleaseDate is null AND movie.movReleaseDate <= i_maxMovReleaseDate or i_maxMovReleaseDate is null) 
+    AND (movPlayDate IS NULL OR (movPlayDate >= i_minMovPlayDate or i_minMovPlayDate is null AND movPlayDate <= i_maxMovPlayDate or i_maxMovPlayDate is null)) 
+    AND (NOT i_includeNotPlayed OR movPlayDate IS NOT NULL);
 END$$
 DELIMITER ;
 
