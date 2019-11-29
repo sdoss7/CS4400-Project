@@ -8,7 +8,7 @@ username VARCHAR(50) NOT NULL UNIQUE,
 firstname VARCHAR(50) NOT NULL,
 lastname VARCHAR(50) NOT NULL,
 password VARCHAR(50) NOT NULL,
-status VARCHAR(50) NOT NULL,
+status VARCHAR(50) NOT NULL DEFAULT 'Pending',
 PRIMARY KEY (username)
 );
 DROP TABLE IF EXISTS Customer;	
@@ -151,7 +151,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `Company` WRITE;
 /*!40000 ALTER TABLE `Company` DISABLE KEYS */;
-INSERT INTO `Company` VALUES ('4400 theater company'),('AI theater company'),('Awesome theater company'),('EZ theater company');
+INSERT INTO `Company` VALUES ('4400 Theater Company'),('AI theater company'),('Awesome theater company'),('EZ theater company');
 /*!40000 ALTER TABLE `Company` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -181,7 +181,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `Manager` WRITE;
 /*!40000 ALTER TABLE `Manager` DISABLE KEYS */;
-INSERT INTO `Manager` VALUES ('calcultron','123 Peachtree St','Atlanta','GA','30308','EZ theater company'),('entropyRox','200 Cool Place','San Francisco','CA','94016','4400 theater company'),('fatherAI','456 Main St','New York','NY','10001','EZ theater company'),('georgep','10 Pearl Dr','Seattle','WA','98105','4400 theater company'),('ghcghc','100 Pi St','Pallet Town','KS','31415','AI theater company'),('imbatman','800 Color Dr','Austin','TX','78653','Awesome theater company'),('manager1','123 Ferst Drive','Atlanta','GA','30332','4400 theater company'),('manager2','456 Ferst Drive','Atlanta','GA','30332','AI theater company'),('manager3','789 Ferst Drive','Atlanta','GA','30332','4400 theater company'),('manager4','000 Ferst Drive','Atlanta','GA','30332','4400 theater company'),('radioactivePoRa','100 Blu St','Sunnyvale','CA','94088','4400 theater company');
+INSERT INTO `Manager` VALUES ('calcultron','123 Peachtree St','Atlanta','GA','30308','EZ theater company'),('entropyRox','200 Cool Place','San Francisco','CA','94016','4400 Theater Company'),('fatherAI','456 Main St','New York','NY','10001','EZ theater company'),('georgep','10 Pearl Dr','Seattle','WA','98105','4400 Theater Company'),('ghcghc','100 Pi St','Pallet Town','KS','31415','AI theater company'),('imbatman','800 Color Dr','Austin','TX','78653','Awesome theater company'),('manager1','123 Ferst Drive','Atlanta','GA','30332','4400 Theater Company'),('manager2','456 Ferst Drive','Atlanta','GA','30332','AI theater company'),('manager3','789 Ferst Drive','Atlanta','GA','30332','4400 Theater Company'),('manager4','000 Ferst Drive','Atlanta','GA','30332','4400 Theater Company'),('radioactivePoRa','100 Blu St','Sunnyvale','CA','94088','4400 Theater Company');
 /*!40000 ALTER TABLE `Manager` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -202,7 +202,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `Theater` WRITE;
 /*!40000 ALTER TABLE `Theater` DISABLE KEYS */;
-INSERT INTO `Theater` VALUES ('ABC theater','Awesome theater company',5,'880 Color Dr','Austin','TX','73301','imbatman'),('Cinema Star','4400 theater company',4,'100 Cool Place','San Francisco','CA','94016','entropyRox'),('Jonathan\'s movies','4400 theater company',2,'67 Pearl Dr','Seattle','WA','98101','georgep'),('Main movies','EZ theater company',3,'123 Main St','New York','NY','10001','fatherAI'),('ML movies','AI theater company',3,'314 Pi St','Pallet Town','KS','31415','ghcghc'),('Star movies','4400 theater company',5,'4400 Rocks Ave','Boulder','CA','80301','radioactivePoRa'),('Star movies','EZ theater company',2,'745 GT St','Atlanta','GA','30332','calcultron');
+INSERT INTO `Theater` VALUES ('ABC theater','Awesome theater company',5,'880 Color Dr','Austin','TX','73301','imbatman'),('Cinema Star','4400 Theater Company',4,'100 Cool Place','San Francisco','CA','94016','entropyRox'),('Jonathan\'s movies','4400 Theater Company',2,'67 Pearl Dr','Seattle','WA','98101','georgep'),('Main movies','EZ theater company',3,'123 Main St','New York','NY','10001','fatherAI'),('ML movies','AI theater company',3,'314 Pi St','Pallet Town','KS','31415','ghcghc'),('Star movies','4400 Theater Company',5,'4400 Rocks Ave','Boulder','CA','80301','radioactivePoRa'),('Star movies','EZ theater company',2,'745 GT St','Atlanta','GA','30332','calcultron');
 /*!40000 ALTER TABLE `Theater` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -212,7 +212,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `MoviePlay` WRITE;
 /*!40000 ALTER TABLE `MoviePlay` DISABLE KEYS */;
-INSERT INTO `MoviePlay` VALUES ('4400 The movie','2019-08-12','2019-10-12','ABC theater','Awesome theater company'),('Georgia Tech The movie','1985-08-13','1985-08-13','ABC theater','Awesome theater company'),('The First Pokemon movie','1998-07-19','2018-07-19','ABC theater','Awesome theater company'),('4400 The movie','2019-08-12','2019-09-12','Cinema Star','4400 theater company'),('George P Burdell\'s Life Story','1927-08-12','2010-05-20','Cinema Star','4400 theater company'),('Georgia Tech The movie','1985-08-13','2019-09-30','Cinema Star','4400 theater company'),('How to Train Your Dragon','2010-03-21','2010-04-02','Cinema Star','4400 theater company'),('Spaceballs','1987-06-24','2000-02-02','Cinema Star','4400 theater company'),('The King\'s Speech','2010-11-26','2019-12-20','Cinema Star','4400 theater company'),('George P Burdell\'s Life Story','1927-08-12','2019-07-14','Main movies','EZ theater company'),('George P Burdell\'s Life Story','1927-08-12','2019-10-22','Main movies','EZ theater company'),('How to Train Your Dragon','2010-03-21','2010-03-22','Main movies','EZ theater company'),('How to Train Your Dragon','2010-03-21','2010-03-23','Main movies','EZ theater company'),('Spaceballs','1987-06-24','1999-06-24','Main movies','EZ theater company'),('The King\'s Speech','2010-11-26','2019-12-20','Main movies','EZ theater company'),('Calculus Returns: A ML Story','2019-09-19','2019-10-10','ML movies','AI theater company'),('Calculus Returns: A ML Story','2019-09-19','2019-12-30','ML movies','AI theater company'),('Spaceballs','1987-06-24','2010-04-02','ML movies','AI theater company'),('Spaceballs','1987-06-24','2023-01-23','ML movies','AI theater company'),('Spider-Man: Into the Spider-Verse','2018-12-01','2019-09-30','ML movies','AI theater company'),('4400 The movie','2019-08-12','2019-08-12','Star movies','EZ theater company'),('How to Train Your Dragon','2010-03-21','2010-03-25','Star movies','EZ theater company');
+INSERT INTO `MoviePlay` VALUES ('4400 The movie','2019-08-12','2019-10-12','ABC theater','Awesome theater company'),('Georgia Tech The movie','1985-08-13','1985-08-13','ABC theater','Awesome theater company'),('The First Pokemon movie','1998-07-19','2018-07-19','ABC theater','Awesome theater company'),('4400 The movie','2019-08-12','2019-09-12','Cinema Star','4400 Theater Company'),('George P Burdell\'s Life Story','1927-08-12','2010-05-20','Cinema Star','4400 Theater Company'),('Georgia Tech The movie','1985-08-13','2019-09-30','Cinema Star','4400 Theater Company'),('How to Train Your Dragon','2010-03-21','2010-04-02','Cinema Star','4400 Theater Company'),('Spaceballs','1987-06-24','2000-02-02','Cinema Star','4400 Theater Company'),('The King\'s Speech','2010-11-26','2019-12-20','Cinema Star','4400 Theater Company'),('George P Burdell\'s Life Story','1927-08-12','2019-07-14','Main movies','EZ theater company'),('George P Burdell\'s Life Story','1927-08-12','2019-10-22','Main movies','EZ theater company'),('How to Train Your Dragon','2010-03-21','2010-03-22','Main movies','EZ theater company'),('How to Train Your Dragon','2010-03-21','2010-03-23','Main movies','EZ theater company'),('Spaceballs','1987-06-24','1999-06-24','Main movies','EZ theater company'),('The King\'s Speech','2010-11-26','2019-12-20','Main movies','EZ theater company'),('Calculus Returns: A ML Story','2019-09-19','2019-10-10','ML movies','AI theater company'),('Calculus Returns: A ML Story','2019-09-19','2019-12-30','ML movies','AI theater company'),('Spaceballs','1987-06-24','2010-04-02','ML movies','AI theater company'),('Spaceballs','1987-06-24','2023-01-23','ML movies','AI theater company'),('Spider-Man: Into the Spider-Verse','2018-12-01','2019-09-30','ML movies','AI theater company'),('4400 The movie','2019-08-12','2019-08-12','Star movies','EZ theater company'),('How to Train Your Dragon','2010-03-21','2010-03-25','Star movies','EZ theater company');
 /*!40000 ALTER TABLE `MoviePlay` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -222,7 +222,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `CustomerViewMovie` WRITE;
 /*!40000 ALTER TABLE `CustomerViewMovie` DISABLE KEYS */;
-INSERT INTO `CustomerViewMovie` VALUES ('How to Train Your Dragon','2010-03-21','2010-03-25','Star movies','EZ theater company','1111111111111100'),('How to Train Your Dragon','2010-03-21','2010-03-22','Main movies','EZ theater company','1111111111111111'),('How to Train Your Dragon','2010-03-21','2010-03-23','Main movies','EZ theater company','1111111111111111'),('How to Train Your Dragon','2010-03-21','2010-04-02','Cinema Star','4400 theater company','1111111111111111');
+INSERT INTO `CustomerViewMovie` VALUES ('How to Train Your Dragon','2010-03-21','2010-03-25','Star movies','EZ theater company','1111111111111100'),('How to Train Your Dragon','2010-03-21','2010-03-22','Main movies','EZ theater company','1111111111111111'),('How to Train Your Dragon','2010-03-21','2010-03-23','Main movies','EZ theater company','1111111111111111'),('How to Train Your Dragon','2010-03-21','2010-04-02','Cinema Star','4400 Theater Company','1111111111111111');
 /*!40000 ALTER TABLE `CustomerViewMovie` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -245,7 +245,7 @@ BEGIN
 		SELECT username, status, CASE WHEN EXISTS(SELECT username from Customer where i_username = Customer.username) THEN 1 ELSE 0 END AS isCustomer,
 			CASE WHEN EXISTS(SELECT username from Admin WHERE i_username = Admin.username) THEN 1 ELSE 0 END AS isAdmin,
             CASE WHEN EXISTS(SELECT username from Manager WHERE i_username = Manager.username) THEN 1 ELSE 0 END AS isManager
-		FROM user
+		FROM User
         WHERE username = i_username and password = i_password;
 END
 $$
@@ -276,7 +276,7 @@ CREATE PROCEDURE `manager_only_register`(IN i_username VARCHAR(50), IN i_passwor
     i_empStreet VARCHAR(50), i_empCity VARCHAR(50), i_empState VARCHAR(50), i_empZipcode VARCHAR(50))
 BEGIN    
     INSERT INTO User (username, password, firstname, lastname, status) VALUES (i_username, MD5(i_password), i_firstname, i_lastname, "Pending");
-	INSERT INTO Employee (username) VALUES (i_username);
+	  INSERT INTO Employee (username) VALUES (i_username);
     INSERT INTO Manager (username, manStreet, manCity, manState, manZipcode, comName) 
 		VALUES (i_username, i_empStreet, i_empCity, i_empState, i_empZipcode, i_comName);
 END
