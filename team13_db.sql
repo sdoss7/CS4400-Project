@@ -331,10 +331,10 @@ BEGIN
 	SELECT thName, thStreet, thCity, thState, thZipcode, comName 
     FROM Theater
     WHERE 
-		(thName = i_thName OR i_thName = "ALL") AND
-        (comName = i_comName OR i_comName = "ALL") AND
-        (thCity = i_city OR i_city = "") AND
-        (thState = i_state OR i_state = "ALL");
+		(thName = i_thName OR i_thName = "ALL" OR i_thName = "") AND
+        (comName = i_comName OR i_comName = "ALL" or i_comName = "") AND
+        (thCity = i_city OR i_city = "" OR i_city = "") AND
+        (thState = i_state OR i_state = "ALL" or i_state = "");
 END$$
 DELIMITER ;
 
@@ -414,11 +414,8 @@ BEGIN
     DROP TABLE IF EXISTS AdComDetailEmp;
     CREATE TABLE AdComDetailEmp
 	SELECT firstname as empFirstname, lastname as empLastname
-    FROM User
-		NATURAL JOIN
-        Company
-    WHERE 
-		User.username in (select username from Employee) and (Company.comName = i_comName OR i_comName = "ALL");
+    FROM User JOIN Manager USING(username)
+    WHERE comName = i_comName OR i_comName = "" OR i_comName = "ALL"
 END
 $$
 DELIMITER ;
@@ -443,7 +440,7 @@ BEGIN
 	SELECT comName, COUNT(DISTINCT thCity, thState) as numCityCover,  COUNT(DISTINCT(thName)) as numTheater, COUNT(DISTINCT(username)) as numEmployee
 	FROM Manager JOIN Company USING(comName)
 	LEFT JOIN Theater USING(comName)
-	WHERE i_comName = "ALL" OR i_comName = comName
+	WHERE i_comName = "" OR i_comName = "ALL" OR i_comName = comName
 	GROUP BY comName
 	HAVING (numCityCover >= i_minCity or i_minCity is null) 
     AND (numCityCover<=i_maxCity or i_maxCity is null) AND 
