@@ -370,7 +370,7 @@ DROP PROCEDURE IF EXISTS admin_decline_user;
 DELIMITER $$
 CREATE PROCEDURE `admin_decline_user` (IN i_username VARCHAR(50))
 BEGIN
-	UPDATE User SET status = 'Declined' WHERE username = i_username;
+	UPDATE User SET status = 'Declined' WHERE username = i_username AND status <> "Approved";
 END$$
 DELIMITER ;
 
