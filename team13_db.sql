@@ -265,8 +265,9 @@ DROP PROCEDURE IF EXISTS customer_add_creditcard;
 DELIMITER $$ 
 CREATE PROCEDURE `customer_add_creditcard`(IN i_username VARCHAR(50), IN i_creditCardNum CHAR(16))
 BEGIN 
-    INSERT INTO CustomerCreditCard (username, creditCardNum) VALUES (i_username, i_creditCardNum);
-END 
+    INSERT INTO CustomerCreditCard (username, creditCardNum) 
+    VALUES (CASE WHEN char_length(i_creditCardNum) = 16 THEN i_username ELSE null END, CASE WHEN char_length(i_creditCardNum) = 16 THEN i_creditCardNum ELSE null END);
+END
 $$
 DELIMITER ; 
 
@@ -525,7 +526,7 @@ BEGIN
 	INSERT INTO MoviePlay (thName, comName, movName, movReleaseDate, movPlayDate)
 		SELECT thName, Theater.comName, i_movName, i_movReleaseDate, i_movPlayDate
 		FROM Manager JOIN Theater ON Manager.username = Theater.thManagerUsername
-		WHERE username = i_manUsername;
+		WHERE username = i_manUsername AND i_movPlayDate >= i_movReleaseDate;
 END$$
 DELIMITER ;
 
