@@ -255,7 +255,7 @@ DROP PROCEDURE IF EXISTS customer_only_register;
 DELIMITER $$
 CREATE PROCEDURE `customer_only_register`(IN i_username VARCHAR(50), IN i_password VARCHAR(50), IN i_firstname VARCHAR(50), IN i_lastname VARCHAR(50))
 BEGIN
-    INSERT INTO User (username, password, firstname, lastname) VALUES (i_username, MD5(i_password), i_firstname, i_lastname);
+    INSERT INTO User (username, password, firstname, lastname, status) VALUES (i_username, MD5(i_password), i_firstname, i_lastname, "Pending");
     INSERT INTO Customer (username) VALUES (i_username);
 END
 $$
@@ -275,10 +275,10 @@ DELIMITER $$
 CREATE PROCEDURE `manager_only_register`(IN i_username VARCHAR(50), IN i_password VARCHAR(50), IN i_firstname VARCHAR(50), IN i_lastname VARCHAR(50), i_comName VARCHAR(50),
     i_empStreet VARCHAR(50), i_empCity VARCHAR(50), i_empState VARCHAR(50), i_empZipcode VARCHAR(50))
 BEGIN    
-    INSERT INTO User (username, password, firstname, lastname) VALUES (i_username, MD5(i_password), i_firstname, i_lastname);
-    INSERT INTO Manager (username, comName, manStreet, manCity, manState, manZipcode) 
-		VALUES (i_username, i_comName, i_empStreet, i_empCity, i_empState, i_empZipcode);
-    INSERT INTO Employee (username) VALUES (i_username);
+    INSERT INTO User (username, password, firstname, lastname, status) VALUES (i_username, MD5(i_password), i_firstname, i_lastname, "Pending");
+	  INSERT INTO Employee (username) VALUES (i_username);
+    INSERT INTO Manager (username, manStreet, manCity, manState, manZipcode, comName) 
+		VALUES (i_username, i_empStreet, i_empCity, i_empState, i_empZipcode, i_comName);
 END
 $$
 DELIMITER ;
@@ -289,11 +289,11 @@ DELIMITER $$
 CREATE PROCEDURE `manager_customer_register`(IN i_username VARCHAR(50), IN i_password VARCHAR(50), IN i_firstname VARCHAR(50), IN i_lastname VARCHAR(50), i_comName VARCHAR(50),
     i_empStreet VARCHAR(50), i_empCity VARCHAR(50), i_empState VARCHAR(50), i_empZipcode VARCHAR(50))
 BEGIN    
-    INSERT INTO User (username, password, firstname, lastname) VALUES (i_username, MD5(i_password), i_firstname, i_lastname);
-    INSERT INTO Manager (username, comName, empStreet, empCity, empState, empZipcode)
+    INSERT INTO User (username, password, firstname, lastname, status) VALUES (i_username, MD5(i_password), i_firstname, i_lastname, "Pending");
+	INSERT INTO Employee (username) VALUES (i_username);
+    INSERT INTO Manager (username, comName, manStreet, manCity, manState, manZipcode)
 		VALUES (i_username, i_comName, i_empStreet, i_empCity, i_empState, i_empZipcode);
     INSERT INTO Customer (username) VALUES (i_username);
-    INSERT INTO Employee (username) VALUES (i_username);
 END
 $$
 DELIMITER ;
@@ -312,7 +312,7 @@ DROP PROCEDURE IF EXISTS user_register;
 DELIMITER $$
 CREATE PROCEDURE `user_register`(IN i_username VARCHAR(50), IN i_password VARCHAR(50), IN i_firstname VARCHAR(50), IN i_lastname VARCHAR(50))
 BEGIN
-		INSERT INTO User (username, password, firstname, lastname) VALUES (i_username, MD5(i_password), i_firstname, i_lastname);
+		INSERT INTO User (username, password, firstname, lastname, status) VALUES (i_username, MD5(i_password), i_firstname, i_lastname, "Pending");
 END$$
 DELIMITER ;
 
