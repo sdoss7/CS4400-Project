@@ -72,7 +72,7 @@ DROP TABLE IF EXISTS CustomerCreditCard;
 CREATE TABLE CustomerCreditCard
 (
 username VARCHAR(50),
-creditCardNum CHAR(16) NOT NULL UNIQUE,
+creditCardNum VARCHAR(16) NOT NULL UNIQUE CHECK(char_length(creditCardNum) = 16),
 PRIMARY KEY (creditCardNum),
 FOREIGN KEY (username) REFERENCES User(username)
 );
@@ -103,7 +103,7 @@ username VARCHAR(50) NOT NULL,
 thName VARCHAR(50) NOT NULL,
 comName VARCHAR(50) NOT NULL,
 visitDate DATE NOT NULL,
-VisitID INT NOT NULL UNIQUE,
+VisitID INT NOT NULL AUTO_INCREMENT,
 PRIMARY KEY (VisitID),
 FOREIGN KEY (thName, comName) REFERENCES Theater(thName, comName),
 FOREIGN KEY (username) REFERENCES User(username)
@@ -116,7 +116,7 @@ movReleaseDate DATE NOT NULL,
 movPlayDate DATE NOT NULL,
 thName VARCHAR(50) NOT NULL,
 comName VARCHAR(50) NOT NULL,
-creditCardNum CHAR(16) NOT NULL,
+creditCardNum VARCHAR(16) NOT NULL CHECK(char_length(creditCardNum) = 16),
 PRIMARY KEY (movName, movReleaseDate, movPlayDate, thName, comName, creditCardNum),
 FOREIGN KEY (creditCardNum) REFERENCES CustomerCreditCard(creditCardNum),
 FOREIGN KEY (movName,movReleaseDate, movPlayDate, thName, comName) REFERENCES MoviePlay(movName,movReleaseDate, movPlayDate, thName, comName)
@@ -265,7 +265,10 @@ DROP PROCEDURE IF EXISTS customer_add_creditcard;
 DELIMITER $$ 
 CREATE PROCEDURE `customer_add_creditcard`(IN i_username VARCHAR(50), IN i_creditCardNum CHAR(16))
 BEGIN 
-    INSERT INTO CustomerCreditCard (username, creditCardNum) VALUES (i_username, i_creditCardNum);
+    set @num = (select count(creditCardNum) from CustomerCreditCard left join User using(username) where username=i_username);
+	IF char_length(i_creditCardNum) = 16 AND @num < 5 THEN 
+		INSERT INTO CustomerCreditCard (username, creditCardNum) VALUES (i_username, i_creditCardNum);
+    END IF;
 END 
 $$
 DELIMITER ; 
@@ -303,7 +306,10 @@ DROP PROCEDURE IF EXISTS manager_customer_add_creditcard;
 DELIMITER $$ 
 CREATE PROCEDURE `manager_customer_add_creditcard`(IN i_username VARCHAR(50), IN i_creditCardNum CHAR(16))
 BEGIN 
-    INSERT INTO CustomerCreditCard (username, creditCardNum) VALUES (i_username, i_creditCardNum);
+	set @num = (select count(creditCardNum) from CustomerCreditCard left join User using(username) where username=i_username);
+	IF char_length(i_creditCardNum) = 16 AND @num < 5 THEN 
+		INSERT INTO CustomerCreditCard (username, creditCardNum) VALUES (i_username, i_creditCardNum);
+    END IF;
 END 
 $$
 DELIMITER ;
@@ -376,7 +382,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS admin_create_theater;
 DELIMITER $$
-CREATE PROCEDURE `admin_create_theater` (IN i_thName VARCHAR(50), IN i_comName VARCHAR(50), IN i_thCity VARCHAR(50), IN i_thStreet VARCHAR(50), IN i_thState CHAR(2), 
+CREATE PROCEDURE `admin_create_theater` (IN i_thName VARCHAR(50), IN i_comName VARCHAR(50), IN i_thStreet VARCHAR(50), IN i_thCity VARCHAR(50), IN i_thState CHAR(2), 
 IN i_thZipcode CHAR(5), IN i_capacity INT, IN i_managerUsername VARCHAR(50))
 BEGIN
 	INSERT INTO Theater (thName, comName, thCapacity, thStreet, thCity, thState, thZipcode, thManagerUsername)
@@ -535,19 +541,9 @@ CREATE PROCEDURE `customer_filter_mov`(IN i_movName VARCHAR(50), IN i_comName VA
 BEGIN
     DROP TABLE IF EXISTS CosFilterMovie;
     CREATE TABLE CosFilterMovie
-<<<<<<< HEAD
-	SELECT movName, thName, thStreet, thCity, thState, thZipcode, Theater.comName, movPlayDate, movReleaseDate
-	FROM MoviePlay join Theater using(thName)
-	WHERE (i_movName = movName or i_movName = "" or i_movName = "ALL") 
-    AND (i_comName = Theater.comName or i_comName = "ALL" or i_comName = "") 
-    AND (i_city = thCity OR i_city = "") AND (i_state = thState or i_state = "") 
-    AND (i_minMovPlayDate is null or movPlayDate >= i_minMovPlayDate ) 
-    AND (i_maxMovPlayDate is null or movPlayDate <= i_maxMovPlayDate);
-=======
 	SELECT movName, MoviePlay.thName, thStreet, thCity, thState, thZipcode, Theater.comName, movPlayDate, movReleaseDate
 	FROM MoviePlay join Theater on MoviePlay.thName = Theater.thName AND MoviePlay.comName = Theater.comName
 	WHERE (i_movName = movName or i_movName = "" or i_movName = "ALL") AND (i_comName = Theater.comName or i_comName = "ALL" or i_comName = "") AND (i_city = thCity OR i_city = "") AND (i_state = thState or i_state = "") AND (i_minMovPlayDate is null or movPlayDate >= i_minMovPlayDate ) AND (i_maxMovPlayDate is null or movPlayDate <= i_maxMovPlayDate);
->>>>>>> 621b88b39dd413abdde56e35c834fd2df9cd63c0
 END$$
 DELIMITER ;
 
@@ -560,7 +556,7 @@ BEGIN
 		where (select COUNT(*) from CustomerViewMovie where creditCardNum in
         (select creditCardNum from CustomerCreditCard where username = 
         (select username from CustomerCreditCard where creditCardNum = i_creditCardNum))
-        AND movPlayDate = i_movPlayDate) < 3;
+        AND movPlayDate = i_movPlayDate) < 3 AND char_length(i_creditCardNum) = 16;
 END
 $$
 DELIMITER ;
