@@ -543,6 +543,6 @@ BEGIN
     CREATE TABLE CosFilterMovie
 	SELECT movName, thName, thStreet, thCity, thState, thZipcode, theater.comName, movPlayDate, movReleaseDate
 	FROM movieplay join theater using(thName)
-	WHERE (i_movName = movName) AND (i_comName = comname) AND (i_city = thCity OR i_city = "") AND (i_state = thState) AND (movPlayDate >= i_minMovPlayDate) AND (movPlayDate <= i_maxMovPlayDate);
+	WHERE (i_movName = movName) AND (i_comName = theater.comname) AND (i_city = thCity OR i_city = "") AND (i_state = thState) AND (movPlayDate >= i_minMovPlayDate) AND (movPlayDate <= i_maxMovPlayDate);
 END$$
 DELIMITER ;
