@@ -331,10 +331,10 @@ BEGIN
 	SELECT thName, thStreet, thCity, thState, thZipcode, comName 
     FROM Theater
     WHERE 
-		(thName = i_thName OR i_thName = "ALL") AND
-        (comName = i_comName OR i_comName = "ALL") AND
-        (thCity = i_city OR i_city = "") AND
-        (thState = i_state OR i_state = "ALL");
+		(thName = i_thName OR i_thName = "ALL" OR i_thName = "") AND
+        (comName = i_comName OR i_comName = "ALL" or i_comName = "") AND
+        (thCity = i_city OR i_city = "" OR i_city = "") AND
+        (thState = i_state OR i_state = "ALL" or i_state = "");
 END$$
 DELIMITER ;
 
@@ -414,11 +414,8 @@ BEGIN
     DROP TABLE IF EXISTS AdComDetailEmp;
     CREATE TABLE AdComDetailEmp
 	SELECT firstname as empFirstname, lastname as empLastname
-    FROM User
-		NATURAL JOIN
-        Company
-    WHERE 
-		User.username in (select username from Employee) and (Company.comName = i_comName OR i_comName = "ALL");
+    FROM User JOIN Manager USING(username)
+    WHERE comName = i_comName OR i_comName = "" OR i_comName = "ALL"
 END
 $$
 DELIMITER ;
@@ -443,7 +440,7 @@ BEGIN
 	SELECT comName, COUNT(DISTINCT thCity, thState) as numCityCover,  COUNT(DISTINCT(thName)) as numTheater, COUNT(DISTINCT(username)) as numEmployee
 	FROM Manager JOIN Company USING(comName)
 	LEFT JOIN Theater USING(comName)
-	WHERE i_comName = "ALL" OR i_comName = comName
+	WHERE i_comName = "" OR i_comName = "ALL" OR i_comName = comName
 	GROUP BY comName
 	HAVING (numCityCover >= i_minCity or i_minCity is null) 
     AND (numCityCover<=i_maxCity or i_maxCity is null) AND 
@@ -535,6 +532,18 @@ BEGIN
 		SELECT thName, comName, i_movName, i_movReleaseDate, i_movPlayDate
 		FROM Manager JOIN Theater ON Manager.username = Theater.thManagerUsername
 		WHERE username = i_manUsername;
+END$$
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS customer_filter_mov;
+DELIMITER $$
+CREATE PROCEDURE `customer_filter_mov`(IN i_movName VARCHAR(50), IN i_comName VARCHAR(50), IN i_city VARCHAR(50), IN i_state VARCHAR(50), IN i_minMovPlayDate DATE, IN i_maxMovPlayDate DATE)
+BEGIN
+    DROP TABLE IF EXISTS CosFilterMovie;
+    CREATE TABLE CosFilterMovie
+	SELECT movName, thName, thStreet, thCity, thState, thZipcode, Theater.comName, movPlayDate, movReleaseDate
+	FROM MoviePlay join Theater using(thName)
+	WHERE (i_movName = movName) AND (i_comName = Theater.comName) AND (i_city = thCity OR i_city = "") AND (i_state = thState) AND (movPlayDate >= i_minMovPlayDate) AND (movPlayDate <= i_maxMovPlayDate);
 END$$
 DELIMITER ;
 
