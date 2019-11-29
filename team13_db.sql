@@ -379,7 +379,7 @@ DELIMITER $$
 CREATE PROCEDURE `admin_create_theater` (IN i_thName VARCHAR(50), IN i_comName VARCHAR(50), IN i_thCity VARCHAR(50), IN i_thStreet VARCHAR(50), IN i_thState CHAR(2), 
 IN i_thZipcode CHAR(5), IN i_capacity INT, IN i_managerUsername VARCHAR(50))
 BEGIN
-	INSERT INTO Theater (thName, comName, capacity, thStreet, thCity, thState, thZipcode, thManagerUsername)
+	INSERT INTO Theater (thName, comName, thCapacity, thStreet, thCity, thState, thZipcode, thManagerUsername)
     VALUES (i_thName, i_comName, i_capacity, i_thStreet, i_thCity, i_thState, i_thZipcode, i_managerUsername);
 END$$
 DELIMITER ;
@@ -418,9 +418,9 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS admin_create_mov;
 DELIMITER $$
-CREATE PROCEDURE `admin_create_mov`(IN i_movName VARCHAR(50), i_movDuration INT, i_movReleas DATE)
+CREATE PROCEDURE `admin_create_mov`(IN i_movName VARCHAR(50), i_movDuration INT, i_movReleaseDate DATE)
 BEGIN
-		INSERT INTO Movie (name, movDuration, release_date) VALUES (i_movName, i_movDuration, i_movReleas);
+		INSERT INTO Movie (movName, movDuration, movReleaseDate) VALUES (i_movName, i_movDuration, i_movReleaseDate);
 END
 $$
 DELIMITER ;
@@ -537,7 +537,11 @@ BEGIN
     CREATE TABLE CosFilterMovie
 	SELECT movName, thName, thStreet, thCity, thState, thZipcode, Theater.comName, movPlayDate, movReleaseDate
 	FROM MoviePlay join Theater using(thName)
-	WHERE (i_movName = movName or i_movName = "" or i_movName = "ALL") AND (i_comName = Theater.comName or i_comName = "ALL" or i_comName = "") AND (i_city = thCity OR i_city = "") AND (i_state = thState or i_state = "") AND (i_minMovPlayDate is null or movPlayDate >= i_minMovPlayDate ) AND (i_maxMovPlayDate is null or movPlayDate <= i_maxMovPlayDate);
+	WHERE (i_movName = movName or i_movName = "" or i_movName = "ALL") 
+    AND (i_comName = Theater.comName or i_comName = "ALL" or i_comName = "") 
+    AND (i_city = thCity OR i_city = "") AND (i_state = thState or i_state = "") 
+    AND (i_minMovPlayDate is null or movPlayDate >= i_minMovPlayDate ) 
+    AND (i_maxMovPlayDate is null or movPlayDate <= i_maxMovPlayDate);
 END$$
 DELIMITER ;
 
@@ -547,7 +551,7 @@ CREATE PROCEDURE `customer_view_mov`(IN i_creditCardNum CHAR(16), i_movName VARC
 BEGIN
 		INSERT INTO CustomerViewMovie (movName, movReleaseDate, movPlayDate, thName, comName, creditCardNum) 
 		select i_movName,i_movReleaseDate,i_movPlayDate, i_thName, i_comName, i_creditCardNum
-		where (select COUNT(*) from CustomerViewMovie where reditCardNum in
+		where (select COUNT(*) from CustomerViewMovie where creditCardNum in
         (select creditCardNum from CustomerCreditCard where username = 
         (select username from CustomerCreditCard where creditCardNum = i_creditCardNum))
         AND movPlayDate = i_movPlayDate) < 3;
