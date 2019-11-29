@@ -370,7 +370,7 @@ DROP PROCEDURE IF EXISTS admin_decline_user;
 DELIMITER $$
 CREATE PROCEDURE `admin_decline_user` (IN i_username VARCHAR(50))
 BEGIN
-	UPDATE User SET status = 'Declined' WHERE username = i_username;
+	UPDATE User SET status = 'Declined' WHERE username = i_username AND status <> "Approved";
 END$$
 DELIMITER ;
 
@@ -535,6 +535,7 @@ CREATE PROCEDURE `customer_filter_mov`(IN i_movName VARCHAR(50), IN i_comName VA
 BEGIN
     DROP TABLE IF EXISTS CosFilterMovie;
     CREATE TABLE CosFilterMovie
+<<<<<<< HEAD
 	SELECT movName, thName, thStreet, thCity, thState, thZipcode, Theater.comName, movPlayDate, movReleaseDate
 	FROM MoviePlay join Theater using(thName)
 	WHERE (i_movName = movName or i_movName = "" or i_movName = "ALL") 
@@ -542,6 +543,11 @@ BEGIN
     AND (i_city = thCity OR i_city = "") AND (i_state = thState or i_state = "") 
     AND (i_minMovPlayDate is null or movPlayDate >= i_minMovPlayDate ) 
     AND (i_maxMovPlayDate is null or movPlayDate <= i_maxMovPlayDate);
+=======
+	SELECT movName, MoviePlay.thName, thStreet, thCity, thState, thZipcode, Theater.comName, movPlayDate, movReleaseDate
+	FROM MoviePlay join Theater on MoviePlay.thName = Theater.thName AND MoviePlay.comName = Theater.comName
+	WHERE (i_movName = movName or i_movName = "" or i_movName = "ALL") AND (i_comName = Theater.comName or i_comName = "ALL" or i_comName = "") AND (i_city = thCity OR i_city = "") AND (i_state = thState or i_state = "") AND (i_minMovPlayDate is null or movPlayDate >= i_minMovPlayDate ) AND (i_maxMovPlayDate is null or movPlayDate <= i_maxMovPlayDate);
+>>>>>>> 621b88b39dd413abdde56e35c834fd2df9cd63c0
 END$$
 DELIMITER ;
 
