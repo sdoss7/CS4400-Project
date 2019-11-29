@@ -241,18 +241,12 @@ DELIMITER $$
 CREATE PROCEDURE `user_login`(IN i_username VARCHAR(50), IN i_password VARCHAR(50))
 BEGIN
 	DROP TABLE IF EXISTS UserLogin;
-    CREATE TABLE UserLogin(username VARCHAR(50), status VARCHAR(50), isCustomer INT, isAdmin INT, isManager INT);
-		SELECT username, status FROM User WHERE username = i_username AND password = MD5(i_password);
-		SELECT COUNT(*) FROM Customer WHERE username in(
-		SELECT username FROM User WHERE username = i_username AND password = MD5(i_password)
-		);
-		SELECT COUNT(*) FROM Admin WHERE username in(
-		SELECT username FROM User WHERE username = i_username AND password = MD5(i_password)
-		);
-		SELECT COUNT(*) FROM Manager WHERE username in(
-		SELECT username FROM User WHERE username = i_username AND password = MD5(i_password)
-		);
-
+    CREATE TABLE UserLogin
+		SELECT username, status, CASE WHEN EXISTS(SELECT username from Customer where i_username = Customer.username) THEN 1 ELSE 0 END AS isCustomer,
+			CASE WHEN EXISTS(SELECT username from Admin WHERE i_username = Admin.username) THEN 1 ELSE 0 END AS isAdmin,
+            CASE WHEN EXISTS(SELECT username from Manager WHERE i_username = Manager.username) THEN 1 ELSE 0 END AS isManager
+		FROM user
+        WHERE username = i_username and password = i_password;
 END
 $$
 DELIMITER ;
@@ -331,10 +325,10 @@ BEGIN
 	SELECT thName, thStreet, thCity, thState, thZipcode, comName 
     FROM Theater
     WHERE 
-		(thName = i_thName OR i_thName = "ALL") AND
-        (comName = i_comName OR i_comName = "ALL") AND
-        (thCity = i_city OR i_city = "") AND
-        (thState = i_state OR i_state = "ALL");
+		(thName = i_thName OR i_thName = "ALL" OR i_thName = "") AND
+        (comName = i_comName OR i_comName = "ALL" or i_comName = "") AND
+        (thCity = i_city OR i_city = "" OR i_city = "") AND
+        (thState = i_state OR i_state = "ALL" or i_state = "");
 END$$
 DELIMITER ;
 
@@ -414,11 +408,8 @@ BEGIN
     DROP TABLE IF EXISTS AdComDetailEmp;
     CREATE TABLE AdComDetailEmp
 	SELECT firstname as empFirstname, lastname as empLastname
-    FROM User
-		NATURAL JOIN
-        Company
-    WHERE 
-		User.username in (select username from Employee) and (Company.comName = i_comName OR i_comName = "ALL");
+    FROM User JOIN Manager USING(username)
+    WHERE comName = i_comName OR i_comName = "" OR i_comName = "ALL";
 END
 $$
 DELIMITER ;
@@ -443,7 +434,7 @@ BEGIN
 	SELECT comName, COUNT(DISTINCT thCity, thState) as numCityCover,  COUNT(DISTINCT(thName)) as numTheater, COUNT(DISTINCT(username)) as numEmployee
 	FROM Manager JOIN Company USING(comName)
 	LEFT JOIN Theater USING(comName)
-	WHERE i_comName = "ALL" OR i_comName = comName
+	WHERE i_comName = "" OR i_comName = "ALL" OR i_comName = comName
 	GROUP BY comName
 	HAVING (numCityCover >= i_minCity or i_minCity is null) 
     AND (numCityCover<=i_maxCity or i_maxCity is null) AND 
@@ -532,7 +523,7 @@ DELIMITER $$
 CREATE PROCEDURE `manager_schedule_mov`(IN i_manUsername VARCHAR(50), IN i_movName VARCHAR(50), IN i_movReleaseDate DATE, IN i_movPlayDate DATE)
 BEGIN
 	INSERT INTO MoviePlay (thName, comName, movName, movReleaseDate, movPlayDate)
-		SELECT thName, comName, i_movName, i_movReleaseDate, i_movPlayDate
+		SELECT thName, Theater.comName, i_movName, i_movReleaseDate, i_movPlayDate
 		FROM Manager JOIN Theater ON Manager.username = Theater.thManagerUsername
 		WHERE username = i_manUsername;
 END$$
@@ -546,7 +537,7 @@ BEGIN
     CREATE TABLE CosFilterMovie
 	SELECT movName, thName, thStreet, thCity, thState, thZipcode, Theater.comName, movPlayDate, movReleaseDate
 	FROM MoviePlay join Theater using(thName)
-	WHERE (i_movName = movName) AND (i_comName = Theater.comName) AND (i_city = thCity OR i_city = "") AND (i_state = thState) AND (movPlayDate >= i_minMovPlayDate) AND (movPlayDate <= i_maxMovPlayDate);
+	WHERE (i_movName = movName or i_movName = "" or i_movName = "ALL") AND (i_comName = Theater.comName or i_comName = "ALL" or i_comName = "") AND (i_city = thCity OR i_city = "") AND (i_state = thState or i_state = "") AND (i_minMovPlayDate is null or movPlayDate >= i_minMovPlayDate ) AND (i_maxMovPlayDate is null or movPlayDate <= i_maxMovPlayDate);
 END$$
 DELIMITER ;
 
